@@ -40,7 +40,7 @@ var questionMap = new Map([
     'A. Raiden'],
 ['Q. Who are the original creators of Rachet & Clank?',
     'A. Insomniac Games'],
-['c',
+['Q. What was the name of the company that created “The Last of Us”?',
     'A. Naughty Dog']]); 
 
 
@@ -48,46 +48,58 @@ var questionMap = new Map([
      
      
 
-
-
+var playing = false;
 
 
 // var intervalId;
 // var clockRunning = false;
 var time = 60;
-// console.log(questionMap);     
-// console.log(questionMap.size); 
-// console.log(Math.floor(Math.random() * questionMap.size)); <- generates 0 - 9 random number
-
+var correct = 0;
+var incorrect = 0;
+var unanswered = 0;
 
 function initializeTriviaGame() {
+    correct = 0;
+    incorrect = 0;
+    unanswered = 0;
     // start timer here
     // start appending questions 
     $("#start-btn").remove();
     
-    // 카운트다운 하는 펑션 만들고 부르기
+    
     setInterval(countDown, 1000);
+    playing = true;
 
     setTimeout(function() {
-        // 60초가 지났을떄 끝내는 펑션 만들고 부르기
+        if(playing) {
+            gameResult();
+        }
+        
     }, 60000);
 
-
-
-    // 답 리스트랑 done 만들기
     for(var i = 0; i < questions.length; i++) {
         var questionP = $("<p>");
+        questionP.attr("value", questions[i]);
         questionP.attr("id", "eachQuestion");
-        questionP.text(questions[i]);
+        questionP.text((i + 1) + " " + questions[i]);
         $("#questions").append(questionP);
 
         for(var j = 0; j < wrongAnswers.length; j++) {
-            var answerBtn = $("<button>");
+            var answerBtn = $("<input> " + wrongAnswers[j] + "</input>");
+            answerBtn.attr("type", "radio");
             answerBtn.attr("value", wrongAnswers[j]);
-            answerBtn.text(wrongAnswers[j]);
-            $("#questions").append(answerBtn);
+            answerBtn.attr("name", "questionName_" + i);
+            answerBtn.attr("id", "questionId_" + i);
+            $("#questions").append(answerBtn).append("<br>");
         }
+        $("#questions").append("<br>");
     }
+    var doneBtn = $("<button>");
+    doneBtn.attr("id", "done-btn");
+    doneBtn.attr("onclick", "gameResult()");
+    doneBtn.text("Done!");
+    $("#questions").append("<br>").append("<br>").append(doneBtn);
+
 
     // Generating random indices for the trivia questions
     /* var usedIndices = [];
@@ -103,15 +115,18 @@ function initializeTriviaGame() {
 } 
 
 function countDown() {
+    
+    
+
+
     time--;
     var currentTime = timeConverter(time);
+    
     $("#display").text(currentTime);
 }
 
 
 function timeConverter(t) {
-
-    //  Takes the current time in seconds and convert it to minutes and seconds (mm:ss).
     var minutes = Math.floor(t / 60);
     var seconds = t - (minutes * 60);
   
@@ -130,3 +145,41 @@ function timeConverter(t) {
     return minutes + ":" + seconds;
 }
 
+function gameResult() {
+    playing = false;
+    
+    // Between Here Comes Calculating Correct Answers
+    for(var i = 0; i < 10; i++) {
+        // returns the answers
+        if($('input:radio[name = questionName_' + i + ']:checked').val() == null) {
+            unanswered++;
+        } else if(questionMap.get(questions[i]) === $('input:radio[name = questionName_' + i + ']:checked').val()) {
+            correct++;
+        } else {
+            incorrect++;
+        }
+        
+
+
+    }
+
+    $("#time_tag").remove();
+    $("#questions").remove();
+
+    var resultDiv = $('<div id="result-div">');
+    resultDiv.append('<h2 id="result">All Done!</h2>');
+    
+    var correctCount = $('<p id="correct_result">');
+    correctCount.text("Correct: " + correct);
+    resultDiv.append(correctCount);
+    
+    var wrongCount = $('<p id="wrong_result">');
+    wrongCount.text("Inccorrect: " + incorrect);
+    resultDiv.append(wrongCount);
+
+    var unansweredCount = $('<p id="unanswered_result">');
+    unansweredCount.text("Unanswered: " + unanswered);
+    resultDiv.append(unansweredCount);
+
+    $("#initialize").append("<br>").append(resultDiv);
+}

@@ -31,3 +31,15 @@ h2 {
     margin-left: 45%;
     font-size: 150%;
 }
+
+#done-btn {
+    margin-left: 40%;
+    font-size: 150%;
+}
+
+#result-div {
+    margin-left: 30%;
+}
+#correct_result, #wrong_result, #unanswered_result{
+    font-size: 150%;
+}
